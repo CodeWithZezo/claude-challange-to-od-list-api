@@ -10,3 +10,8 @@ export enum Role {
     MEMBER = "member",
     MANAGER = "manager",
 }
+
+export enum TeamRole {
+  LEAD = 'lead',
+  MEMBER = 'member'
+}

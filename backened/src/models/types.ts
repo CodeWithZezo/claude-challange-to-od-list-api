@@ -34,3 +34,10 @@ export interface ITeam {
     createdAt?: Date;
     updatedAt?: Date;
 }
+
+export interface ITeamMember {
+    userId:string;
+    teamId:string;
+    joinedAt:Date;
+    role:string;
+}

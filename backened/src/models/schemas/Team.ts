@@ -33,4 +33,4 @@ const teamSchema = new mongoose.Schema<ITeam>(
 
 teamSchema.index({ organizationId: 1 });
 
-export const Team = mongoose.model<ITeam>("team", teamSchema);
+export const Team = mongoose.model<ITeam>("Team", teamSchema);
