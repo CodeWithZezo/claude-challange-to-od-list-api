@@ -16,7 +16,7 @@ const teamSchema = new mongoose.Schema<ITeam>(
       maxlength: [300, "discription only contain 300 words"],
     },
     organizationId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Organization",
       required: true,
     },

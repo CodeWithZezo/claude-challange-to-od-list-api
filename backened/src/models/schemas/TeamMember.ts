@@ -5,18 +5,18 @@ import { ITeamMember } from "../types";
 const teamMemberSchema = new mongoose.Schema<ITeamMember>(
   {
     userId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       requried: true,
     },
     teamId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Team",
-      requried: true,
+      required: true,
     },
     role: {
       type: String,
-      requried:true,
+      requried: true,
       enum: Object.values(TeamRole),
       default: TeamRole.MEMBER,
     },
