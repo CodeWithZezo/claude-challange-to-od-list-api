@@ -57,16 +57,103 @@ export interface IProject {
 
 export interface ITask {
   _id: Types.ObjectId;
-  title:string;
-  description:string;
-  status:string;
-  priority:string;
-  dueDate:Date;
-  projectId:Types.ObjectId;
-  creatorId:Types.ObjectId;
-  parentId:Types.ObjectId;
-  position:number;
+  title: string;
+  description: string;
+  status: string;
+  priority: string;
+  dueDate: Date;
+  projectId: Types.ObjectId;
+  creatorId: Types.ObjectId;
+  parentId: Types.ObjectId;
+  position: number;
   deletedAt?: Date | null;
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface ITaskAssignment {
+  taskId: Types.ObjectId;
+  userId: Types.ObjectId;
+  assignedAt: Date;
+}
+
+export interface ITaskDependency {
+  taskId: Types.ObjectId;
+  dependsOnTaskId: Types.ObjectId;
+  createdAt: Date;
+}
+
+export interface IAttachment {
+  filename: string;
+  fileUrl: string;
+  uploadedBy: Types.ObjectId;
+  fileSize: number;
+  mimeType: string;
+  taskId: Types.ObjectId;
+  uploadedAt: Date;
+  deletedAt: Date;
+}
+
+export interface IComment {
+  content: string;
+  taskId: Types.ObjectId;
+  userId: Types.ObjectId;
+  deletedAt: Date;
+}
+
+export interface IApiKey {
+  name: string;
+  key: string;
+  organizationId: Types.ObjectId;
+  isActive: Boolean;
+  lastUsedAt: Date;
+  expiresAt: Date;
+  deletedAt: Date;
+}
+
+export interface IWebhook {
+  url: string;
+  events: string;
+  secret: string;
+  isActive: Boolean;
+  organizationId: Types.ObjectId;
+  deletedAt: Date | null;
+}
+
+export interface IWebhookDelivery {
+  webhookId: Types.ObjectId;
+  event: string;
+  payload: any;
+  status: string;
+  attempts: number;
+  lastAttempt: Date | null;
+  nextRetry: Date | null;
+  response: string;
+  deletedAt: Date | null;
+}
+
+export interface IRefreshToken extends Document {
+  _id: Types.ObjectId
+
+  token: string
+  userId: Types.ObjectId
+
+  expiresAt: Date
+  revokedAt?: Date | null
+  deletedAt?: Date | null
+
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface IAuditLog {
+  _id?: string;           
+  action: string;         
+  entity: string;         
+  entityId: string;       
+  userId: string;         
+  changes: Record<string, any>;
+  ipAddress?: string | null;  
+  userAgent?: string | null;  
+  createdAt?: Date;           
 }
