@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Types, Document } from "mongoose";
 
 export interface IOrganization {
   _id: Types.ObjectId;
@@ -17,7 +17,7 @@ export interface IUser {
   firstName: string;
   lastName: string;
   role: string;
-  isActive: Boolean;
+  isActive: boolean;
   organizationId: Types.ObjectId;
   lastLoginAt?: Date | null;
   deletedAt?: Date | null;
@@ -64,7 +64,7 @@ export interface ITask {
   dueDate: Date;
   projectId: Types.ObjectId;
   creatorId: Types.ObjectId;
-  parentId: Types.ObjectId;
+  parentId?: Types.ObjectId | null;
   position: number;
   deletedAt?: Date | null;
   createdAt?: Date;
@@ -91,33 +91,33 @@ export interface IAttachment {
   mimeType: string;
   taskId: Types.ObjectId;
   uploadedAt: Date;
-  deletedAt: Date;
+  deletedAt?: Date | null;
 }
 
 export interface IComment {
   content: string;
   taskId: Types.ObjectId;
   userId: Types.ObjectId;
-  deletedAt: Date;
+  deletedAt?: Date | null;
 }
 
 export interface IApiKey {
   name: string;
   key: string;
   organizationId: Types.ObjectId;
-  isActive: Boolean;
-  lastUsedAt: Date;
-  expiresAt: Date;
-  deletedAt: Date;
+  isActive: boolean;
+  lastUsedAt?: Date | null;
+  expiresAt?: Date | null;
+  deletedAt?: Date | null;
 }
 
 export interface IWebhook {
   url: string;
-  events: string;
+  events: string[];
   secret: string;
-  isActive: Boolean;
+  isActive: boolean;
   organizationId: Types.ObjectId;
-  deletedAt: Date | null;
+  deletedAt?: Date | null;
 }
 
 export interface IWebhookDelivery {
@@ -126,34 +126,31 @@ export interface IWebhookDelivery {
   payload: any;
   status: string;
   attempts: number;
-  lastAttempt: Date | null;
-  nextRetry: Date | null;
-  response: string;
-  deletedAt: Date | null;
+  lastAttempt?: Date | null;
+  nextRetry?: Date | null;
+  response?: string | null;
+  deletedAt?: Date | null;
 }
 
 export interface IRefreshToken extends Document {
-  _id: Types.ObjectId
-
-  token: string
-  userId: Types.ObjectId
-
-  expiresAt: Date
-  revokedAt?: Date | null
-  deletedAt?: Date | null
-
-  createdAt: Date
-  updatedAt: Date
+  _id: Types.ObjectId;
+  token: string;
+  userId: Types.ObjectId;
+  expiresAt: Date;
+  revokedAt?: Date | null;
+  deletedAt?: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IAuditLog {
-  _id?: string;           
-  action: string;         
-  entity: string;         
-  entityId: string;       
-  userId: string;         
+  _id?: string;
+  action: string;
+  entity: string;
+  entityId: string;
+  userId: string;
   changes: Record<string, any>;
-  ipAddress?: string | null;  
-  userAgent?: string | null;  
-  createdAt?: Date;           
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  createdAt?: Date;
 }
