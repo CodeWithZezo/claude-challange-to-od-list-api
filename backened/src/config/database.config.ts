@@ -38,7 +38,7 @@ export const dbConfig: DatabaseConfigs = {
     options: {
       maxPoolSize: 50,
       minPoolSize: 10,
-      maxIdleTimeMS: 30000,
+      maxIdleTimeMS: 30000, 
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
       connectTimeoutMS: 10000,
