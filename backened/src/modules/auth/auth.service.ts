@@ -56,6 +56,58 @@ export class AuthService {
     return this.generateAuthResponse(user);
   }
 
+  async login(data: any): Promise<AuthResponse>{
+    const user = await User.findOne({email: data.email}).select('+password')
+    if(!user){
+        throw new Error('invalid credentials')
+    }
+
+    if(!user.isActive){
+        throw new Error('Account is deactivated')
+    }
+
+    const isPasswordValid = await PasswordUtils.compare(data.password,user.password)
+
+    if(!isPasswordValid){
+        throw new Error('invalid credentials')
+    }
+
+    return this.generateAuthResponse(user)
+  }
+  
+  async refreshToken(refreshToken:string): Promise<AuthResponse>{
+    let payload
+    try {
+        payload = JWTUtils.verifyRefreshToken(refreshToken)
+    } catch (error) {
+        throw new Error('invalid ot expired token') 
+    }
+
+    const storedToken = await RefreshToken.findOne({
+        token: refreshToken,
+        userId: payload.userId
+    })
+    
+    if (!storedToken) {
+      throw new Error('Refresh token not found');
+    }
+
+    if (new Date() > storedToken.expiresAt) {
+      await RefreshToken.deleteOne({ _id: storedToken._id });
+      throw new Error('Refresh token expired');
+    }
+
+     const user = await User.findById(payload.userId);
+    if (!user || !user.isActive) {
+      throw new Error('User not found or inactive');
+    }
+
+    await RefreshToken.deleteOne({ _id: storedToken._id });
+
+    return this.generateAuthResponse(user);
+  }
+
+
   private async generateAuthResponse(user: any): Promise<AuthResponse> {
     const payload = {
       userId: user._id,
