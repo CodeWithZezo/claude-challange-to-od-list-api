@@ -1,8 +1,8 @@
-import { User, Organization, RefreshToken } from '../../models';
-import { RegisterDTO, LoginDTO, AuthResponse } from '../../types/auth.types';
-import { PasswordUtils } from '../../utils/password.utils';
-import { JWTUtils } from '../../utils/jwt.utils';
-import { Role } from '../../models/enums';
+import { User, Organization, RefreshToken } from "../../models";
+import { RegisterDTO, LoginDTO, AuthResponse } from "../../types/auth.types";
+import { PasswordUtils } from "../../utils/password.utils";
+import { JWTUtils } from "../../utils/jwt.utils";
+import { Role } from "../../models/enums";
 export class AuthService {
   async register(data: RegisterDTO): Promise<AuthResponse> {
     //firstly we validate the password
@@ -39,24 +39,52 @@ export class AuthService {
     }
 
     //now hasing password
-    const hashPassword = await PasswordUtils.hash(data.password)
+    const hashPassword = await PasswordUtils.hash(data.password);
 
     // now creating user
     const user = await User.create({
-        email:data.email,
-        password: data.password,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        role: Role.ADMIN,
-        organizationId,
-        isActive:true
-    })
+      email: data.email,
+      password: hashPassword,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      role: Role.ADMIN,
+      organizationId,
+      isActive: true,
+    });
 
     //generate token
-    return this.generateAuthResponse(user )
-
+    return this.generateAuthResponse(user);
   }
 
+  private async generateAuthResponse(user: any): Promise<AuthResponse> {
+    const payload = {
+      userId: user._id,
+      email: user.email,
+      role: user.role,
+      organizationId: user.organizationId,
+    };
+    const accessToken = JWTUtils.generateAccessToken(payload);
+    const refreshToken = JWTUtils.generateRefreshToken(payload);
 
-  private async generateAuthResponse
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+
+    await RefreshToken.create({
+      token: refreshToken,
+      userId: user._id,
+      expiresAt,
+    });
+    return {
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        organizationId: user.organizationId,
+      },
+      accessToken,
+      refreshToken,
+    };
+  }
 }
