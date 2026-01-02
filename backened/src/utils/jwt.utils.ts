@@ -1,27 +1,43 @@
-import jwt from "jsonwebtoken";
+import jwt, { SignOptions, Secret } from "jsonwebtoken";
 import { JWTPayload } from "../types/auth.types";
 import { authConfig } from "../config/auth.config";
 
 export class JWTUtils {
   static generateAccessToken(payload: JWTPayload): string {
-    return jwt.sign(payload, authConfig.jwt.accessTokenSecret, {
-      expiresIn: authConfig.jwt.accessTokenExpiry,
-    });
+    const options: SignOptions = {
+      expiresIn: authConfig.jwt.accessTokenExpiry as SignOptions["expiresIn"],
+    };
+
+    return jwt.sign(
+      payload,
+      authConfig.jwt.accessTokenSecret as Secret,
+      options
+    );
   }
 
-  static generateRefreshToken(payload: JWTPayload):string{
-    return jwt.sign(payload,authConfig.jwt.refreshTokenSecret,{
-        expiresIn:authConfig.jwt.refreshTokenExpiry,
-    })
+  static generateRefreshToken(payload: JWTPayload): string {
+    const options: SignOptions = {
+      expiresIn: authConfig.jwt.refreshTokenExpiry as SignOptions["expiresIn"],
+    };
+
+    return jwt.sign(
+      payload,
+      authConfig.jwt.refreshTokenSecret as Secret,
+      options
+    );
   }
 
-  static verifyAcessToken(token: string):JWTPayload{
-    return jwt.verify(token, authConfig.jwt.accessTokenSecret) as JWTPayload;
+  static verifyAcessToken(token: string): JWTPayload {
+    return jwt.verify(
+      token,
+      authConfig.jwt.accessTokenSecret as Secret
+    ) as JWTPayload;
   }
 
-  static verifyRefreshToken(token:string):JWTPayload {
-    return jwt.verify(token, authConfig.jwt.refreshTokenSecret) as JWTPayload;
+  static verifyRefreshToken(token: string): JWTPayload {
+    return jwt.verify(
+      token,
+      authConfig.jwt.refreshTokenSecret as Secret
+    ) as JWTPayload;
   }
 }
-
-

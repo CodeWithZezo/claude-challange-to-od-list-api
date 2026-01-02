@@ -17,9 +17,10 @@ export class AuthService {
       throw new Error("user already exisit with this email");
     }
 
-    //! is ki samaj ni ha sabi ka q kar rha ya kam
     //check organization if provided
-    let organizationId: string;
+    let organizationId: string = "";
+    //agr organizationId aur subdomain provide ki hoi hogi tu 
+    // hub check kara ga ka kia wo subdomain exisit karti ha  
     if (data.organizationName && data.subdomain) {
       const existingOrg = await Organization.findOne({
         subdomain: data.subdomain,
@@ -33,7 +34,7 @@ export class AuthService {
         subdomain: data.subdomain,
         plan: "free",
       });
-      organizationId = organization._id;
+      organizationId = organization._id.toString();
     } else {
       throw new Error("Organization details are required");
     }
