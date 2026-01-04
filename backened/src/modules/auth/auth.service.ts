@@ -32,7 +32,7 @@ export class AuthService {
       const organization = await Organization.create({
         name: data.organizationName,
         subdomain: data.subdomain,
-        plan: "free",
+        plan: "FREE",
       });
       organizationId = organization._id.toString();
     } else {

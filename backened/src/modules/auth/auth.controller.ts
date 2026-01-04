@@ -20,4 +20,17 @@ export class AuthController {
       }
     }
   };
+
+  login = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const result = await this.authService.login(req.body);
+      res.status(201).json(result);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        res.status(400).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: "Unknown error occurred" });
+      }
+    }
+  };
 }
