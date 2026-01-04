@@ -81,7 +81,7 @@ export class AuthService {
     try {
         payload = JWTUtils.verifyRefreshToken(refreshToken)
     } catch (error) {
-        throw new Error('invalid ot expired token') 
+        throw new Error('invalid or expired token') 
     }
 
     const storedToken = await RefreshToken.findOne({
@@ -108,6 +108,9 @@ export class AuthService {
     return this.generateAuthResponse(user);
   }
 
+   async logout(refreshToken: string): Promise<void> {
+    await RefreshToken.deleteOne({token: refreshToken})
+  }
 
   private async generateAuthResponse(user: any): Promise<AuthResponse> {
     const payload = {

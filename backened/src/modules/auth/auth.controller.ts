@@ -33,4 +33,32 @@ export class AuthController {
       }
     }
   };
+
+  refreshToken = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { refreshToken } = req.body;
+      const result = await this.authService.refreshToken(refreshToken);
+      res.status(201).json(result);
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: "Unknown error occurred" });
+      }
+    }
+  };
+
+  logout = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { refreshToken } = req.body;
+      await this.authService.logout(refreshToken);
+      res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: "Unknown error occurred" });
+      }
+    }
+  };
 }
