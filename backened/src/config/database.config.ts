@@ -1,54 +1,25 @@
-export interface DatabaseConfig {
-  uri: string;
-  dbName: string;
-  options: {
-    maxPoolSize: number;
-    minPoolSize: number;
-    maxIdleTimeMS?: number;
-    serverSelectionTimeoutMS?: number;
-    socketTimeoutMS?: number;
-    connectTimeoutMS?: number;
-    family?: number;
-    retryWrites?: boolean;
-    retryReads?: boolean;
-    w?: string;
-    readPreference?: string;
-    compressors?: string[];
-    zlibCompressionLevel?: number;
-  };
-}
+import mongoose from 'mongoose';
 
-interface DatabaseConfigs {
-  development: DatabaseConfig;
-  production: DatabaseConfig;
-}
+const MONGODB_URI =
+  process.env.MONGODB_URI || 'mongodb://localhost:27017/task_managemnt_system';
 
-export const dbConfig: DatabaseConfigs = {
-  development: {
-    uri: process.env.MONGODB_URI || 'mongodb://localhost:27017',
-    dbName: process.env.DB_NAME || 'dev_db',
-    options: {
-      maxPoolSize: 5,
-      minPoolSize: 1,
-    }
-  },
-  production: {
-    uri: process.env.MONGODB_URI!,
-    dbName: process.env.DB_NAME!,
-    options: {
-      maxPoolSize: 50,
-      minPoolSize: 10,
-      maxIdleTimeMS: 30000, 
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-      connectTimeoutMS: 10000,
-      family: 4,
-      retryWrites: true,
-      retryReads: true,
-      w: 'majority',
-      readPreference: 'primaryPreferred',
-      compressors: ['snappy', 'zlib'],
-      zlibCompressionLevel: 6,
-    }
+export async function connectDatabase(): Promise<void> {
+  try {
+    await mongoose.connect(MONGODB_URI);
+
+    console.log('✅ MongoDB connected');
+
+  } catch (error) {
+    console.error('❌ MongoDB connection failed:', error);
+    process.exit(1);
   }
-};
+}
+
+export async function disconnectDatabase(): Promise<void> {
+  try {
+    await mongoose.disconnect();
+    console.log('📴 MongoDB disconnected');
+  } catch (error) {
+    console.error('❌ MongoDB disconnect error:', error);
+  }
+}
