@@ -19,8 +19,8 @@ export class AuthService {
 
     //check organization if provided
     let organizationId: string = "";
-    //agr organizationId aur subdomain provide ki hoi hogi tu 
-    // hub check kara ga ka kia wo subdomain exisit karti ha  
+    //agr organizationId aur subdomain provide ki hoi hogi tu
+    // hub check kara ga ka kia wo subdomain exisit karti ha
     if (data.organizationName && data.subdomain) {
       const existingOrg = await Organization.findOne({
         subdomain: data.subdomain,
@@ -57,50 +57,53 @@ export class AuthService {
     return this.generateAuthResponse(user);
   }
 
-  async login(data: any): Promise<AuthResponse>{
-    const user = await User.findOne({email: data.email}).select('+password')
-    if(!user){
-        throw new Error('invalid credentials')
+  async login(data: any): Promise<AuthResponse> {
+    const user = await User.findOne({ email: data.email }).select("+password");
+    if (!user) {
+      throw new Error("invalid credentials");
     }
 
-    if(!user.isActive){
-        throw new Error('Account is deactivated')
+    if (!user.isActive) {
+      throw new Error("Account is deactivated");
     }
 
-    const isPasswordValid = await PasswordUtils.compare(data.password,user.password)
+    const isPasswordValid = await PasswordUtils.compare(
+      data.password,
+      user.password
+    );
 
-    if(!isPasswordValid){
-        throw new Error('invalid credentials')
+    if (!isPasswordValid) {
+      throw new Error("invalid credentials");
     }
 
-    return this.generateAuthResponse(user)
+    return this.generateAuthResponse(user);
   }
-  
-  async refreshToken(refreshToken:string): Promise<AuthResponse>{
-    let payload
+
+  async refreshToken(refreshToken: string): Promise<AuthResponse> {
+    let payload;
     try {
-        payload = JWTUtils.verifyRefreshToken(refreshToken)
+      payload = JWTUtils.verifyRefreshToken(refreshToken);
     } catch (error) {
-        throw new Error('invalid or expired token') 
+      throw new Error("invalid or expired token");
     }
 
     const storedToken = await RefreshToken.findOne({
-        token: refreshToken,
-        userId: payload.userId
-    })
-    
+      token: refreshToken,
+      userId: payload.userId,
+    });
+
     if (!storedToken) {
-      throw new Error('Refresh token not found');
+      throw new Error("Refresh token not found");
     }
 
     if (new Date() > storedToken.expiresAt) {
       await RefreshToken.deleteOne({ _id: storedToken._id });
-      throw new Error('Refresh token expired');
+      throw new Error("Refresh token expired");
     }
 
-     const user = await User.findById(payload.userId);
+    const user = await User.findById(payload.userId);
     if (!user || !user.isActive) {
-      throw new Error('User not found or inactive');
+      throw new Error("User not found or inactive");
     }
 
     await RefreshToken.deleteOne({ _id: storedToken._id });
@@ -108,9 +111,59 @@ export class AuthService {
     return this.generateAuthResponse(user);
   }
 
-   async logout(refreshToken: string): Promise<void> {
-    await RefreshToken.deleteOne({token: refreshToken})
+  async logout(refreshToken: string): Promise<void> {
+    await RefreshToken.deleteOne({ token: refreshToken });
   }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<void> {
+    //firtly check new password is correct or valid
+    const passwordValidation = PasswordUtils.validate(newPassword)
+    if (!passwordValidation.valid) {
+      throw new Error(passwordValidation.errors.join(", "));
+    }
+    // then find the user by its id with +password 
+    const user = await User.findById(userId).select('+password')
+
+    if(!user){
+      throw new Error('user not found')
+    }
+    //then check the current password
+    const isPasswordValid = await PasswordUtils.compare(currentPassword, user.password)
+    if(!isPasswordValid){
+      throw new Error('current password is not valid ')
+    }
+    // if current password is valid then we replace the user.password after hash the password   
+    user.password = await PasswordUtils.hash(newPassword)
+    await user.save()
+    // then also delete all the refresh token 
+    await RefreshToken.deleteMany({userId:user._id})
+  }
+
+
+  // async forgotPassword(email: string): Promise<void> {
+  //   const user = await User.findOne({ email });
+  //   if (!user) {
+  //     // Don't reveal if user exists
+  //     return;
+  //   }
+
+  //   // Generate reset token (valid for 1 hour)
+  //   const resetToken = jwt.sign(
+      // { userId: user._id, type: 'password-reset' },
+  //     authConfig.jwt.accessTokenSecret,
+  //     { expiresIn: '1h' }
+  //   );
+
+  //   // TODO: Send email with reset link
+  //   // await emailService.sendPasswordResetEmail(user.email, resetToken);
+    
+  //   console.log(`Password reset token for ${email}: ${resetToken}`);
+  // }
+
 
   private async generateAuthResponse(user: any): Promise<AuthResponse> {
     const payload = {
